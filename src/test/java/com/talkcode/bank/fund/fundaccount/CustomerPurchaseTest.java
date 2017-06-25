@@ -1,4 +1,4 @@
-package com.talkcode.bank.fund.test;
+package com.talkcode.bank.fund.fundaccount;
 
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class CustomerPurchaseTest {
         when(moneyTransferService.transfer(customerBankAccount, companyBankAccount, amount))
                 .thenReturn(true);
 
-        FundAccountRepository fundAccountRepository = new FundAccountRepository();
+        FundAccountRepository fundAccountRepository = new InMemoryFundAccountRepository();
         fundAccountRepository.save(new FundAccount(fundAccountId));
 
         PurchaseService purchaseService = new PurchaseService(fundAccountRepository, moneyTransferService);
@@ -80,7 +80,7 @@ public class CustomerPurchaseTest {
     private class PurchaseService {
 
         private final FundAccountRepository fundAccountRepository;
-        private MoneyTransferService moneyTransferService;
+        private       MoneyTransferService  moneyTransferService;
 
         public PurchaseService(FundAccountRepository fundAccountRepository,
                                MoneyTransferService moneyTransferService) {
@@ -96,28 +96,6 @@ public class CustomerPurchaseTest {
             BankAccount companyBankAccount = new BankAccount("8888-1234-1234");
             moneyTransferService.transfer(bankAccount, companyBankAccount, amount);
             return new Voucher(bankAccount, fundAccountId, amount);
-        }
-    }
-
-    private class FundAccount {
-        private String id;
-        private BigInteger balance;
-
-        FundAccount(String id) {
-            this.id = id;
-            balance = new BigInteger("0");
-        }
-        public String getId() {
-            return id;
-        }
-
-        public BigInteger balance() {
-            return balance;
-        }
-
-        public BigInteger transferIn(BigInteger amount) {
-            balance = balance.add(amount);
-            return balance;
         }
     }
 
@@ -188,11 +166,11 @@ public class CustomerPurchaseTest {
         boolean transfer(BankAccount customerBankAccount, BankAccount companyBankAccount, BigInteger amount);
     }
 
-    private class FundAccountRepository {
+    private class InMemoryFundAccountRepository implements FundAccountRepository {
         private List<FundAccount> records;
         private Map<String, FundAccount> primaryIndex;
 
-        public FundAccountRepository() {
+        public InMemoryFundAccountRepository() {
             records = new ArrayList<FundAccount>();
             primaryIndex = new HashMap<String, FundAccount>();
         }

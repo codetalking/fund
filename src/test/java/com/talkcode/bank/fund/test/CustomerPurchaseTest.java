@@ -30,7 +30,8 @@ public class CustomerPurchaseTest {
 
         FundAccountRepository fundAccountRepository = new FundAccountRepository();
         fundAccountRepository.save(new FundAccount(fundAccountId));
-        PurchaseService purchaseService = new PurchaseService(fundAccountRepository);
+
+        PurchaseService purchaseService = new PurchaseService(fundAccountRepository, moneyTransferService);
         Voucher voucher = purchaseService.purchase(customerBankAccount, fundAccountId, amount);
 
         assertEquals(customerBankAccount, voucher.bankAccount());
@@ -79,9 +80,12 @@ public class CustomerPurchaseTest {
     private class PurchaseService {
 
         private final FundAccountRepository fundAccountRepository;
+        private MoneyTransferService moneyTransferService;
 
-        public PurchaseService(FundAccountRepository fundAccountRepository) {
+        public PurchaseService(FundAccountRepository fundAccountRepository,
+                               MoneyTransferService moneyTransferService) {
             this.fundAccountRepository = fundAccountRepository;
+            this.moneyTransferService = moneyTransferService;
         }
 
         public Voucher purchase(BankAccount bankAccount, String fundAccountId, BigInteger amount) {
@@ -89,6 +93,7 @@ public class CustomerPurchaseTest {
             fundAccount.transferIn(amount);
             fundAccountRepository.save(fundAccount);
 
+            moneyTransferService.transfer(bankAccount, companyBankAccount, amount);
             return new Voucher(bankAccount, fundAccountId, amount);
         }
     }
@@ -120,6 +125,21 @@ public class CustomerPurchaseTest {
 
         public BankAccount(String cardNumber) {
             this.cardNumber = cardNumber;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+
+            BankAccount that = (BankAccount) o;
+
+            return cardNumber != null ? cardNumber.equals(that.cardNumber) : that.cardNumber == null;
+        }
+
+        @Override
+        public int hashCode() {
+            return cardNumber != null ? cardNumber.hashCode() : 0;
         }
     }
 

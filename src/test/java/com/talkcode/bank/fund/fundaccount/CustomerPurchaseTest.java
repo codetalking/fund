@@ -11,28 +11,25 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class CustomerPurchaseTest {
 
-    // What to verify?
-    // 1. FundAccount balance 增加
-    // 2. Money Transfer Service success
     @Test
     public void should_purchase() {
         String fundAccountId = "6666-1234-1234";
         FundAccountRepository fundAccountRepository = new InMemoryFundAccountRepository();
         fundAccountRepository.save(new FundAccount(fundAccountId));
 
-        BankAccount customerBankAccount = new BankAccount("6226-1234-1234");
-
-        BankAccount companyBankAccount = BankAccountFactory.companyBankAccount();
-        BigInteger amount = new BigInteger("200");
         MoneyTransferService moneyTransferService = mock(MoneyTransferService.class);
-        when(moneyTransferService.transfer(customerBankAccount, companyBankAccount, amount))
+        when(moneyTransferService.transfer(any(BankAccount.class), any(BankAccount.class), any(BigInteger.class)))
                 .thenReturn(true);
+
+        BankAccount customerBankAccount = new BankAccount("6226-1234-1234");
+        BigInteger amount = new BigInteger("200");
 
         PurchaseService purchaseService = new PurchaseService(fundAccountRepository, moneyTransferService);
         Voucher voucher = purchaseService.purchase(customerBankAccount, fundAccountId, amount);
@@ -41,7 +38,11 @@ public class CustomerPurchaseTest {
         assertEquals(fundAccountId, voucher.fundAccountId());
         FundAccount fundAccount = fundAccountRepository.byAccountId(fundAccountId);
         assertEquals(amount, fundAccount.balance());
-        verify(moneyTransferService).transfer(customerBankAccount, companyBankAccount, amount);
+        verify(moneyTransferService).
+                transfer(
+                        customerBankAccount,
+                        BankAccountFactory.companyBankAccount(),
+                        amount);
 
     }
 

@@ -2,9 +2,9 @@
 
 ## Domain
 
-1. Each customer has one fund account.
-2. An fund account keeps it's balance.
-3. A customer can purchase fund with a bankcard account, and the money will be transferred from the bankcard account to fund company's account, and the  
+1. Each customer has one fund fundAccount.
+2. An fund fundAccount keeps it's balance.
+3. A customer can purchase fund with a bankAccount fundAccount, and the money will be transferred from the bankAccount fundAccount to fund company's fundAccount, and the  
 
 ```PlantUml
 

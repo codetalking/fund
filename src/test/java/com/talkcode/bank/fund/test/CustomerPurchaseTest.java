@@ -29,6 +29,7 @@ public class CustomerPurchaseTest {
                 .thenReturn(true);
 
         FundAccountRepository fundAccountRepository = new FundAccountRepository();
+        fundAccountRepository.save(new FundAccount(fundAccountId));
         PurchaseService purchaseService = new PurchaseService(fundAccountRepository);
         Voucher voucher = purchaseService.purchase(customerBankAccount, fundAccountId, amount);
 
@@ -96,7 +97,8 @@ public class CustomerPurchaseTest {
         private String id;
         private BigInteger balance;
 
-        public FundAccount() {
+        FundAccount(String id) {
+            this.id = id;
             balance = new BigInteger("0");
         }
         public String getId() {

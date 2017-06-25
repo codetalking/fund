@@ -93,6 +93,7 @@ public class CustomerPurchaseTest {
             fundAccount.transferIn(amount);
             fundAccountRepository.save(fundAccount);
 
+            BankAccount companyBankAccount = new BankAccount("8888-1234-1234");
             moneyTransferService.transfer(bankAccount, companyBankAccount, amount);
             return new Voucher(bankAccount, fundAccountId, amount);
         }

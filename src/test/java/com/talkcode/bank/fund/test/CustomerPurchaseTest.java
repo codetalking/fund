@@ -3,6 +3,10 @@ package com.talkcode.bank.fund.test;
 import org.junit.Test;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -24,12 +28,12 @@ public class CustomerPurchaseTest {
         when(moneyTransferService.transfer(customerBankAccount, companyBankAccount, amount))
                 .thenReturn(true);
 
-        PurchaseService purchaseService = new PurchaseService();
+        FundAccountRepository fundAccountRepository = new FundAccountRepository();
+        PurchaseService purchaseService = new PurchaseService(fundAccountRepository);
         Voucher voucher = purchaseService.purchase(customerBankAccount, fundAccountId, amount);
 
         assertEquals(customerBankAccount, voucher.bankAccount());
         assertEquals(fundAccountId, voucher.fundAccountId());
-        FundAccountRepository fundAccountRepository = new FundAccountRepository();
         FundAccount fundAccount = fundAccountRepository.byAccountId(fundAccountId);
         assertEquals(amount, fundAccount.balance());
         verify(moneyTransferService).transfer(customerBankAccount, companyBankAccount, amount);
@@ -73,21 +77,39 @@ public class CustomerPurchaseTest {
 
     private class PurchaseService {
 
-        public Voucher purchase(BankAccount bankAccount, String fundAccount, BigInteger bigInteger) {
+        private final FundAccountRepository fundAccountRepository;
 
-            return null;
+        public PurchaseService(FundAccountRepository fundAccountRepository) {
+            this.fundAccountRepository = fundAccountRepository;
+        }
+
+        public Voucher purchase(BankAccount bankAccount, String fundAccountId, BigInteger amount) {
+            FundAccount fundAccount = fundAccountRepository.byAccountId(fundAccountId);
+            fundAccount.transferIn(amount);
+            fundAccountRepository.save(fundAccount);
+
+            return new Voucher(bankAccount, fundAccountId, amount);
         }
     }
 
     private class FundAccount {
-        private long id;
+        private String id;
+        private BigInteger balance;
 
-        public long getId() {
+        public FundAccount() {
+            balance = new BigInteger("0");
+        }
+        public String getId() {
             return id;
         }
 
         public BigInteger balance() {
-            return null;
+            return balance;
+        }
+
+        public BigInteger transferIn(BigInteger amount) {
+            balance = balance.add(amount);
+            return balance;
         }
     }
 
@@ -100,15 +122,42 @@ public class CustomerPurchaseTest {
     }
 
     private class Voucher {
-        private long        fundAccountId;
-        private BankAccount bankAccount;
+        private       String      fundAccountId;
+        private final BigInteger  amount;
+        private       BankAccount bankAccount;
 
-        public long fundAccountId() {
+        public Voucher(BankAccount bankAccount, String fundAccountId, BigInteger amount) {
+            this.bankAccount = bankAccount;
+            this.fundAccountId = fundAccountId;
+            this.amount = amount;
+        }
+
+        public String fundAccountId() {
             return fundAccountId;
         }
 
         public BankAccount bankAccount() {
             return bankAccount;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+
+            Voucher voucher = (Voucher) o;
+
+            if (fundAccountId != null ? !fundAccountId.equals(voucher.fundAccountId) : voucher.fundAccountId != null) { return false; }
+            if (amount != null ? !amount.equals(voucher.amount) : voucher.amount != null) { return false; }
+            return bankAccount != null ? bankAccount.equals(voucher.bankAccount) : voucher.bankAccount == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = fundAccountId != null ? fundAccountId.hashCode() : 0;
+            result = 31 * result + (amount != null ? amount.hashCode() : 0);
+            result = 31 * result + (bankAccount != null ? bankAccount.hashCode() : 0);
+            return result;
         }
     }
 
@@ -117,8 +166,24 @@ public class CustomerPurchaseTest {
     }
 
     private class FundAccountRepository {
+        private List<FundAccount> records;
+        private Map<String, FundAccount> primaryIndex;
+
+        public FundAccountRepository() {
+            records = new ArrayList<FundAccount>();
+            primaryIndex = new HashMap<String, FundAccount>();
+        }
+
         public FundAccount byAccountId(String fundAccountId) {
-            return null;
+            return primaryIndex.get(fundAccountId);
+        }
+
+        public FundAccount save(FundAccount fundAccount) {
+            FundAccount old = primaryIndex.get(fundAccount.getId());
+            records.remove(old);
+            primaryIndex.put(fundAccount.getId(), fundAccount);
+            records.add(fundAccount);
+            return fundAccount;
         }
     }
 }

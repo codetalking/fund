@@ -1,5 +1,7 @@
 package com.talkcode.bank.fund.fundaccount;
 
+import com.talkcode.bank.fund.bankaccount.BankAccount;
+import com.talkcode.bank.fund.bankaccount.BankAccountFactory;
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -21,15 +23,16 @@ public class CustomerPurchaseTest {
     @Test
     public void should_purchase() {
         String fundAccountId = "6666-1234-1234";
+        FundAccountRepository fundAccountRepository = new InMemoryFundAccountRepository();
+        fundAccountRepository.save(new FundAccount(fundAccountId));
+
         BankAccount customerBankAccount = new BankAccount("6226-1234-1234");
-        BankAccount companyBankAccount = new BankAccount("8888-1234-1234");
+
+        BankAccount companyBankAccount = BankAccountFactory.companyBankAccount();
         BigInteger amount = new BigInteger("200");
         MoneyTransferService moneyTransferService = mock(MoneyTransferService.class);
         when(moneyTransferService.transfer(customerBankAccount, companyBankAccount, amount))
                 .thenReturn(true);
-
-        FundAccountRepository fundAccountRepository = new InMemoryFundAccountRepository();
-        fundAccountRepository.save(new FundAccount(fundAccountId));
 
         PurchaseService purchaseService = new PurchaseService(fundAccountRepository, moneyTransferService);
         Voucher voucher = purchaseService.purchase(customerBankAccount, fundAccountId, amount);
@@ -93,32 +96,9 @@ public class CustomerPurchaseTest {
             fundAccount.transferIn(amount);
             fundAccountRepository.save(fundAccount);
 
-            BankAccount companyBankAccount = new BankAccount("8888-1234-1234");
+            BankAccount companyBankAccount = BankAccountFactory.companyBankAccount();
             moneyTransferService.transfer(bankAccount, companyBankAccount, amount);
             return new Voucher(bankAccount, fundAccountId, amount);
-        }
-    }
-
-    private class BankAccount {
-        private final String cardNumber;
-
-        public BankAccount(String cardNumber) {
-            this.cardNumber = cardNumber;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) { return true; }
-            if (o == null || getClass() != o.getClass()) { return false; }
-
-            BankAccount that = (BankAccount) o;
-
-            return cardNumber != null ? cardNumber.equals(that.cardNumber) : that.cardNumber == null;
-        }
-
-        @Override
-        public int hashCode() {
-            return cardNumber != null ? cardNumber.hashCode() : 0;
         }
     }
 

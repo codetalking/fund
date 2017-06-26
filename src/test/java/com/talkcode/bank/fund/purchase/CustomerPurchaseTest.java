@@ -1,7 +1,9 @@
-package com.talkcode.bank.fund.fundaccount;
+package com.talkcode.bank.fund.purchase;
 
 import com.talkcode.bank.fund.bankaccount.BankAccount;
 import com.talkcode.bank.fund.bankaccount.BankAccountFactory;
+import com.talkcode.bank.fund.fundaccount.FundAccount;
+import com.talkcode.bank.fund.fundaccount.FundAccountRepository;
 import org.junit.Test;
 
 import java.math.BigInteger;

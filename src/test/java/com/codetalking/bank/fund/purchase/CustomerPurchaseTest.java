@@ -1,9 +1,9 @@
-package com.talkcode.bank.fund.purchase;
+package com.codetalking.bank.fund.purchase;
 
-import com.talkcode.bank.fund.bankaccount.BankAccount;
-import com.talkcode.bank.fund.bankaccount.BankAccountFactory;
-import com.talkcode.bank.fund.fundaccount.FundAccount;
-import com.talkcode.bank.fund.fundaccount.FundAccountRepository;
+import com.codetalking.bank.fund.bankaccount.BankAccount;
+import com.codetalking.bank.fund.fundaccount.FundAccount;
+import com.codetalking.bank.fund.fundaccount.FundAccountRepository;
+import com.codetalking.bank.fund.bankaccount.BankAccountFactory;
 import org.junit.Test;
 
 import java.math.BigInteger;

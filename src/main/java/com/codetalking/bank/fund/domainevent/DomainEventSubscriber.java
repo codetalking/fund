@@ -1,4 +1,4 @@
-package com.talkcode.bank.fund.domainevent;
+package com.codetalking.bank.fund.domainevent;
 
 public interface DomainEventSubscriber<T> {
     Class<?> subscribedToEventType();

@@ -1,4 +1,4 @@
-package com.talkcode.bank.fund.bankaccount;
+package com.codetalking.bank.fund.bankaccount;
 
 public class BankAccountFactory {
 

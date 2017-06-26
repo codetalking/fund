@@ -1,4 +1,4 @@
-package com.talkcode.bank.fund.fundaccount;
+package com.codetalking.bank.fund.fundaccount;
 
 import java.math.BigInteger;
 

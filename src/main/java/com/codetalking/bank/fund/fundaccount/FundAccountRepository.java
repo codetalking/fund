@@ -1,4 +1,4 @@
-package com.talkcode.bank.fund.fundaccount;
+package com.codetalking.bank.fund.fundaccount;
 
 public interface FundAccountRepository {
     FundAccount byAccountId(String fundAccountId);

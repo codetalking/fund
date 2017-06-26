@@ -1,4 +1,4 @@
-package com.talkcode.bank.fund.domainevent;
+package com.codetalking.bank.fund.domainevent;
 
 import java.util.ArrayList;
 import java.util.List;

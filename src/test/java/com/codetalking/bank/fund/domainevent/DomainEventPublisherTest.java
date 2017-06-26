@@ -1,6 +1,6 @@
-package com.talkcode.bank.fund.domainevent;
+package com.codetalking.bank.fund.domainevent;
 
-import com.talkcode.bank.fund.fundaccount.FundAccountTransferIn;
+import com.codetalking.bank.fund.fundaccount.FundAccountTransferIn;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;

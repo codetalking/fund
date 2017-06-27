@@ -1,13 +1,17 @@
 package com.codetalking.bank.fund.purchase;
 
 import com.codetalking.bank.fund.bankaccount.BankAccount;
+import com.codetalking.bank.fund.domainevent.DomainEventPublisher;
+import com.codetalking.bank.fund.domainevent.DomainEventSubscriber;
 import com.codetalking.bank.fund.fundaccount.FundAccount;
 import com.codetalking.bank.fund.fundaccount.FundAccountRepository;
 import com.codetalking.bank.fund.bankaccount.BankAccountFactory;
+import com.codetalking.bank.fund.fundaccount.FundAccountTransferIn;
 import org.junit.Test;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +34,9 @@ public class CustomerPurchaseTest {
         when(moneyTransferService.transfer(any(BankAccount.class), any(BankAccount.class), any(BigInteger.class)))
                 .thenReturn(true);
 
+        FundAccountTransferInDomainEventSubscriber aSubscriber = new FundAccountTransferInDomainEventSubscriber();
+        DomainEventPublisher.instance().subscribe(aSubscriber);
+
         BankAccount customerBankAccount = new BankAccount("6226-1234-1234");
         BigInteger amount = new BigInteger("200");
 
@@ -45,7 +52,20 @@ public class CustomerPurchaseTest {
                         customerBankAccount,
                         BankAccountFactory.companyBankAccount(),
                         amount);
+        assertEquals(aSubscriber.domainEvent.bankAccount(), customerBankAccount);
+        assertEquals(aSubscriber.domainEvent.fundAccountId(), fundAccountId);
+    }
 
+    private static class FundAccountTransferInDomainEventSubscriber implements DomainEventSubscriber<FundAccountTransferIn> {
+        private FundAccountTransferIn domainEvent;
+
+        public Class<?> subscribedToEventType() {
+            return FundAccountTransferIn.class;
+        }
+
+        public void handleEvent(FundAccountTransferIn domainEvent) {
+            this.domainEvent = domainEvent;
+        }
     }
 
     private class Customer {
@@ -101,6 +121,8 @@ public class CustomerPurchaseTest {
 
             BankAccount companyBankAccount = BankAccountFactory.companyBankAccount();
             moneyTransferService.transfer(bankAccount, companyBankAccount, amount);
+
+            DomainEventPublisher.instance().publish(new FundAccountTransferIn(bankAccount, fundAccountId, new Date()));
             return new Voucher(bankAccount, fundAccountId, amount);
         }
     }

@@ -1,7 +1,10 @@
 package com.codetalking.bank.fund.domainevent;
 
+import com.codetalking.bank.fund.bankaccount.BankAccount;
 import com.codetalking.bank.fund.fundaccount.FundAccountTransferIn;
 import org.junit.Test;
+
+import java.util.Date;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -12,7 +15,12 @@ public class DomainEventPublisherTest {
         FundAccountTransferInDomainEventSubscriber aSubscriber = new FundAccountTransferInDomainEventSubscriber();
         DomainEventPublisher.instance().subscribe(aSubscriber);
 
-        DomainEventPublisher.instance().publish(new FundAccountTransferIn());
+        FundAccountTransferIn fundAccountTransferIn =
+                new FundAccountTransferIn(
+                        new BankAccount("bankAccount"),
+                        "6666-1234-1234-1234",
+                        new Date());
+        DomainEventPublisher.instance().publish(fundAccountTransferIn);
 
         assertNotNull(aSubscriber.getDomainEvent());
     }
